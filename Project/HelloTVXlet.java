@@ -5,17 +5,18 @@ import org.havi.ui.*;
 import org.dvb.ui.*;
 import java.awt.event.*;
 import org.havi.ui.event.*;
+import java.util.Timer;
 
-public class HelloTVXlet implements Xlet, HActionListener{
+public class HelloTVXlet implements Xlet, HActionListener
+{
     private XletContext actueleXletContext;
     private HScene scene;
     private boolean debug = true;
     
     private HStaticText tekstLabel, GameOverLabel;
-    private Kikker kikker;
-    private Bus bus;
-    private int busXPos = 0, busYPos = 450, kikkerXPos = 300, kikkerYPos = 450;
-        
+    private MijnTimerTask objTimerTask; 
+
+    
     public void actionPerformed(ActionEvent e){
      //System.out.println(e.getActionCommand());
     
@@ -25,7 +26,8 @@ public class HelloTVXlet implements Xlet, HActionListener{
       
     }
 
-    public void initXlet(XletContext context) throws XletStateChangeException {
+    public void initXlet(XletContext context) throws XletStateChangeException
+    {
         
       if(debug) System.out.println("Xlet Initialiseren");
       this.actueleXletContext = context;
@@ -58,37 +60,37 @@ public class HelloTVXlet implements Xlet, HActionListener{
       GameOverLabel.setBackgroundMode(HVisible.BACKGROUND_FILL);
       GameOverLabel.setVisible(false);
 
-      kikker = new Kikker();
-      bus = new Bus();
-      bus.setLocation(busXPos,busYPos);
-      kikker.setLocation(kikkerXPos,kikkerYPos);
-      scene.add(kikker);
-      scene.add(bus);      
-      scene.add(tekstLabel);
-      scene.add(GameOverLabel);
+      objTimerTask = new MijnTimerTask();
       
+      objTimerTask.game.CreateObjects();
+      
+        scene.add(objTimerTask.game.DisplayBusses());
+        scene.add(objTimerTask.game.DisplayKikker());      
+        scene.add(tekstLabel);
+        scene.add(GameOverLabel);
+      
+        
+        
+        
       
     }
 
-    public void startXlet() {
+    public void startXlet() 
+    {
         if(debug) System.out.println("Xlet Starten");
         scene.validate(); 
         scene.setVisible(true);
-        boolean Gameover = false;
-        while(!Gameover){
-        for(int i=0;i<10000002;i++){
-            if(i>10000000){
-                bus.setLocation(busXPos++, busYPos);
-            }
-        }
+        Timer timer = new Timer();
         
-        if(bus.getLocation().x+100 == kikker.getLocation().x){
-                Gameover = true;
-                System.out.println("GameOver");
-                GameOverLabel.setVisible(true);
-            }
-        }
+        timer.scheduleAtFixedRate(objTimerTask, 0, 200);
+        
+     
+        
+    
+        
     }
+
+
 
     public void pauseXlet() {
      

@@ -7,8 +7,16 @@ import java.awt.*;
 
 public class Kikker extends HComponent{
     
-    public Kikker(){
-        this.setBounds(0, 0, 100, 100);
+    public int mXPos, mYPos, mWidth, mHeight;
+ 
+    public Kikker(int xpos, int ypos, int width, int height)
+    {
+        mXPos = xpos;
+        mYPos = ypos;
+        mWidth= width;
+        mHeight = height;
+        
+        this.setBounds(mXPos, mYPos, mWidth, mHeight);
         
     }
     
