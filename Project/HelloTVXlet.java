@@ -3,17 +3,22 @@ package hellotvxlet;
 import javax.tv.xlet.*;
 import org.havi.ui.*;
 import org.dvb.ui.*;
+import org.dvb.event.*;
 import java.awt.event.*;
 import org.havi.ui.event.*;
 import java.util.Timer;
+import java.util.*;
+import java.lang.Object;
+import java.lang.Thread;
 
-public class HelloTVXlet implements Xlet, HActionListener
+public class HelloTVXlet implements Xlet, HActionListener, UserEventListener
 {
     private XletContext actueleXletContext;
     private HScene scene;
     private boolean debug = true;
     
-    private HStaticText tekstLabel, GameOverLabel;
+    private HStaticText tekstLabel, GameOverLabel, ScoreLabel;
+    
     private MijnTimerTask objTimerTask; 
 
     
@@ -60,14 +65,35 @@ public class HelloTVXlet implements Xlet, HActionListener
       GameOverLabel.setBackgroundMode(HVisible.BACKGROUND_FILL);
       GameOverLabel.setVisible(false);
 
-      objTimerTask = new MijnTimerTask();
+       
       
-      objTimerTask.game.CreateObjects();
       
-        scene.add(objTimerTask.game.DisplayBusses());
-        scene.add(objTimerTask.game.DisplayKikker());      
+      
+      
+      objTimerTask = new MijnTimerTask(scene.getWidth());
+      
+      
+      
+         int score = objTimerTask.game.mScore;
+                
+    ScoreLabel = new HStaticText("Score: " + score);
+      ScoreLabel.setLocation(450,-50);
+      ScoreLabel.setSize(400,250);
+      //tekstLabel.setBackground(new DVBColor(255,255,255,179));
+      ScoreLabel.setBackgroundMode(HVisible.BACKGROUND_FILL);
+      ScoreLabel.setVisible(true);
+      
         scene.add(tekstLabel);
         scene.add(GameOverLabel);
+        scene.add(ScoreLabel);
+        scene.add(objTimerTask.game.mKikker);
+        
+        for (int i = 0; i < 12; i++)
+        {
+           scene.add(objTimerTask.game.mBusArray[i]);
+        }
+        
+        
       
         
         
@@ -82,12 +108,65 @@ public class HelloTVXlet implements Xlet, HActionListener
         scene.setVisible(true);
         Timer timer = new Timer();
         
+        EventManager manager = EventManager.getInstance();
+        UserEventRepository repository = new UserEventRepository("voorbeeld");
+        repository.addKey(org.havi.ui.event.HRcEvent.VK_UP);
+        repository.addKey(org.havi.ui.event.HRcEvent.VK_DOWN);
+        repository.addKey(org.havi.ui.event.HRcEvent.VK_LEFT);
+        repository.addKey(org.havi.ui.event.HRcEvent.VK_RIGHT);
+        manager.addUserEventListener(this, repository);
+        
+        
+        
         timer.scheduleAtFixedRate(objTimerTask, 0, 200);
         
-     
-        
-    
-        
+        while(!objTimerTask.game.mGameOver)
+        {
+           // if(objTimerTask.game.spawned) scene.add(objTimerTask.game.busToAdd);
+           // if(objTimerTask.game.busToDestroy != null)
+            //{
+              //  scene.remove(objTimerTask.game.busToDestroy);
+              //  scene.invalidate();
+           // }
+           // scene.validate();
+        }       
+                if(objTimerTask.game.mGameOver)
+                {
+                    System.out.println("Game Over!");
+                    timer.cancel();
+                    objTimerTask.cancel();
+                    GameOverLabel.setVisible(true);            
+                }
+        }
+
+
+    public void userEventReceived(org.dvb.event.UserEvent e)
+    {
+        if(!objTimerTask.game.mGameOver)
+        {
+            if(e.getType() == KeyEvent.KEY_PRESSED)
+            {System.out.println("Key Pressed");}
+               
+            switch(e.getCode())
+            {
+                case HRcEvent.VK_UP:
+                    objTimerTask.game.mKikker.MoveUp();
+                    objTimerTask.game.GetPoints(5);
+                    ScoreLabel.setTextContent("Score: " + objTimerTask.game.mScore, HState.NORMAL_STATE);
+                    break;
+                case HRcEvent.VK_DOWN:
+                   //Je kan niet achteruit springen
+                    break;
+                case HRcEvent.VK_LEFT:
+                    objTimerTask.game.mKikker.MoveLeft();
+                    break;
+                case HRcEvent.VK_RIGHT:
+                    objTimerTask.game.mKikker.MoveRight(scene.getWidth());
+                    break;
+            }
+            objTimerTask.game.mKikker.DrawKikker();
+      
+        }
     }
 
 

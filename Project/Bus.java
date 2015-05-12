@@ -7,14 +7,15 @@ import java.awt.*;
 
 public class Bus extends HComponent
 {
-    int mXPos, mYPos, mWidth, mHeight;
+    int mXPos, mYPos, mWidth, mHeight, mSpeed;
  
-    public Bus(int xpos, int ypos, int width, int height)
+    public Bus(int xpos, int ypos, int width, int height, int speed)
     {
         mXPos = xpos;
         mYPos = ypos;
         mWidth= width;
         mHeight = height;
+        mSpeed = speed;
         
         this.setBounds(mXPos, mYPos, mWidth, mHeight);
         
@@ -23,17 +24,14 @@ public class Bus extends HComponent
     public void paint(Graphics g)
     {
         g.setColor(new DVBColor(200,200,200,200));
-        g.fillRect(0, 0, 100, 50);
+        g.fillRect(0, 0, mWidth, mHeight);
 
     }
     public void MoveBus()
     {
-        mXPos++;
+        mXPos+= mSpeed;
     }
-    public void DeleteBus(Bus b)
-    {
-        b = null;
-    }
+
     public void DrawBus()
     {
         this.setLocation(mXPos, mYPos);
